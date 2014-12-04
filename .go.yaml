@@ -1,0 +1,5 @@
+---
+path: github.com/mediocregopher/gobdns
+deps:
+    - loc: github.com/miekg/dns
+    - loc: github.com/mediocregopher/flagconfig
