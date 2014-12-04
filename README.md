@@ -19,7 +19,7 @@ employees, each one maybe having multiple virtual hosts.
 
 * TCP and UDP support
 * Easy to setup
-* Prefix-wildcard matching of requests
+* Prefix-wildcard matching of requests (most specific wins)
 * Simple REST api for retrieving and modifying entries
 * Disk persistance
 * Basic master/slave replication
@@ -41,8 +41,8 @@ To build the gobdns binary
 
 ### Running
 
-Run `./gobdns --example` to output an example configuration file. This can be
-piped to a file, modified and used with the `--config` flag.
+Run `./gobdns --example` to output the default configuration. This can be piped
+to a file, modified and used with the `--config` flag.
 
 ### Adding entries
 
