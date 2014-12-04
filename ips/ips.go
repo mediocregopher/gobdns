@@ -10,11 +10,9 @@ var mLock sync.RWMutex
 
 // Retrieves the best matching ip for the given domain. Or not. Will return the
 // most specific match.
-func GetIP(domain string) (string, bool) {
+func Get(domain string) (string, bool) {
 	for {
-		mLock.RLock()
-		ip, ok := m[domain]
-		mLock.RUnlock()
+		ip, ok := GetExact(domain)
 		if ok {
 			return ip, true
 		}
@@ -27,8 +25,17 @@ func GetIP(domain string) (string, bool) {
 	}
 }
 
+// Retrieves an ip exactly matching the given domain (although this will append
+// the period to the end if necessary)
+func GetExact(domain string) (string, bool) {
+	mLock.RLock()
+	defer mLock.RUnlock()
+	ip, ok := m[appendPeriod(domain)]
+	return ip, ok
+}
+
 // Get's a copy of the map which maps all known domains to all known ips
-func GetAllIPs() map[string]string {
+func GetAll() map[string]string {
 	m2 := map[string]string{}
 	mLock.RLock()
 	defer mLock.RUnlock()
@@ -40,13 +47,11 @@ func GetAllIPs() map[string]string {
 
 // Sets the given domain to point to the given ip. If the given domain doesn't
 // end in a period one will be appended to it
-func SetIP(domain, ip string) {
+func Set(domain, ip string) {
 	if domain == "" {
 		return
 	}
-	if domain[len(domain)-1] != '.' {
-		domain = domain + "."
-	}
+	domain = appendPeriod(domain)
 
 	mLock.Lock()
 	m[domain] = ip
@@ -54,8 +59,15 @@ func SetIP(domain, ip string) {
 }
 
 // If the given domain is set to an ip, unsets it
-func UnsetIP(domain string) {
+func Unset(domain string) {
 	mLock.Lock()
 	delete(m, domain)
 	mLock.Unlock()
+}
+
+func appendPeriod(domain string) string {
+	if !strings.HasSuffix(domain, ".") {
+		domain += "."
+	}
+	return domain
 }

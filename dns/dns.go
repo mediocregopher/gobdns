@@ -13,7 +13,7 @@ func handleRequest(w dns.ResponseWriter, r *dns.Msg) {
 
 	domain := r.Question[0].Name
 
-	if ip, ok := ips.GetIP(domain); ok {
+	if ip, ok := ips.Get(domain); ok {
 		a, err := dns.NewRR(fmt.Sprintf("%s IN A %s", domain, ip))
 		if err != nil {
 			log.Println(err)

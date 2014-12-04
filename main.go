@@ -6,8 +6,8 @@ import (
 )
 
 func init() {
-	ips.SetIP("turtles", "127.0.0.1")
-	ips.SetIP("dev.turtles", "127.0.0.2")
+	ips.Set("turtles", "127.0.0.1")
+	ips.Set("dev.turtles", "127.0.0.2")
 }
 
 func main() {
