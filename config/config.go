@@ -12,6 +12,7 @@ var (
 	ForwardAddr string
 	APIAddr     string
 	BackupFile  string
+	MasterAddr  string
 )
 
 const forwardSuffix = ":53"
@@ -24,6 +25,7 @@ func init() {
 	fc.StrParam("forward-addr", "Address to forward requests to when no matches are found", "")
 	fc.StrParam("api-addr", "Address for the REST API to listen on. Leave blank to disable it", "")
 	fc.StrParam("backup-file", "File to read data from during startup and to write data to during runtime. Leave blank to disable persistance", "./gobdns.db")
+	fc.StrParam("master-addr", "ip:port of master instance to periodically pull snapshots from. Leave blank to disable", "")
 
 	if err := fc.Parse(); err != nil {
 		log.Fatal(err)
@@ -34,6 +36,7 @@ func init() {
 	ForwardAddr = fc.GetStr("forward-addr")
 	APIAddr = fc.GetStr("api-addr")
 	BackupFile = fc.GetStr("backup-file")
+	MasterAddr = fc.GetStr("master-addr")
 
 	if ForwardAddr != "" && !strings.HasSuffix(ForwardAddr, forwardSuffix) {
 		ForwardAddr += forwardSuffix
