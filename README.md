@@ -21,7 +21,7 @@ employees, each one maybe having multiple virtual hosts.
 * Easy to setup
 * Prefix-wildcard matching of requests (most specific wins)
 * Simple REST api for retrieving and modifying entries
-* Disk persistance
+* Disk persistence
 * Basic master/slave replication
 * Can forward requests for unknown domains to a different nameserver
 
@@ -63,7 +63,7 @@ Delete the `brian.turtles.com` entry:
 
     curl -i -XDELETE localhost:8080/api/domains/brian.turtles.com
 
-## Persistance
+## Persistence
 
 If `backup-file` is set (it is by default) then every second a snapshot of the
 current data set will be written to disk. On startup (again, if `backup-file` is
