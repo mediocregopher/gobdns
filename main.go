@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "github.com/mediocregopher/gobdns/dns"
+	_ "github.com/mediocregopher/gobdns/http"
 	"github.com/mediocregopher/gobdns/ips"
 )
 
