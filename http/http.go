@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"path"
+	"strings"
 
 	"github.com/mediocregopher/gobdns/config"
 	"github.com/mediocregopher/gobdns/ips"
@@ -63,9 +65,15 @@ func putDelete(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(500)
 			return
 		}
-		ip := string(ipB)
+		ip := strings.TrimSpace(string(ipB))
 		if ip == "" {
 			w.WriteHeader(400)
+			fmt.Fprintf(w, "no ip given in request body")
+			return
+		}
+		if net.ParseIP(ip) == nil {
+			w.WriteHeader(400)
+			fmt.Fprintf(w, "invalid ip given in request body")
 			return
 		}
 		ips.Set(domain, ip)
