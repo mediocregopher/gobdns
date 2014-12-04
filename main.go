@@ -3,13 +3,8 @@ package main
 import (
 	_ "github.com/mediocregopher/gobdns/dns"
 	_ "github.com/mediocregopher/gobdns/http"
-	"github.com/mediocregopher/gobdns/ips"
+	_ "github.com/mediocregopher/gobdns/persist"
 )
-
-func init() {
-	ips.Set("turtles", "127.0.0.1")
-	ips.Set("dev.turtles", "127.0.0.2")
-}
 
 func main() {
 	select {}

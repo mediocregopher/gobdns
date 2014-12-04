@@ -1,3 +1,4 @@
 .goat
 gobdns
 *.test
+gobdns.db*
