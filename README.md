@@ -58,13 +58,18 @@ See all existing entries:
 
     curl -i localhost:8080/api/domains/all
 
-Set `brian.turtles.com` to point to `127.0.0.5`:
+Set `foo.turtles.com` to point to whatever ip the server sees the request coming
+from:
 
-    curl -i -XPOST -d'127.0.0.5' localhost:8080/api/domains/brian.turtles.com
+    curl -i -XPOST localhost:8080/api/domains/foo.turtles.com
 
-Delete the `brian.turtles.com` entry:
+Set `bar.turtles.com` to point to `127.0.0.5`:
 
-    curl -i -XDELETE localhost:8080/api/domains/brian.turtles.com
+    curl -i -XPOST -d'127.0.0.5' localhost:8080/api/domains/bar.turtles.com
+
+Delete the `foo.turtles.com` entry:
+
+    curl -i -XDELETE localhost:8080/api/domains/foo.turtles.com
 
 ## Persistence
 

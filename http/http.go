@@ -24,7 +24,8 @@ var usage = `
 	                             to ips
 
 	POST   /api/domains/<domain> Maps the given domain to the given ip, which
-	                             will be the body data for the request
+	                             can be the body data for the request, otherwise
+	                             the ip the request is coming from will be used.
 
 	PUT    /api/domains/<domain> Same as POST'ing
 
@@ -72,11 +73,9 @@ func putDelete(w http.ResponseWriter, r *http.Request) {
 		}
 		ip := strings.TrimSpace(string(ipB))
 		if ip == "" {
-			w.WriteHeader(400)
-			fmt.Fprintf(w, "no ip given in request body")
-			return
-		}
-		if net.ParseIP(ip) == nil {
+			portIdent := strings.LastIndex(r.RemoteAddr, ":")
+			ip = r.RemoteAddr[:portIdent]
+		} else if net.ParseIP(ip) == nil {
 			w.WriteHeader(400)
 			fmt.Fprintf(w, "invalid ip given in request body")
 			return
