@@ -1,5 +1,8 @@
 # gobdns
 
+**THIS IS STILL IN DEVELOPMENT AND MAY CHANGE AT ANY MOMENT. IT HAS ALSO NOT
+BEEN TESTED AT ALL**
+
 A simple, dynamic dns server written in go. It can direct all requests for an
 address, or addresses matching `*.<address>` or `*-<address>` to a particular
 ip.
