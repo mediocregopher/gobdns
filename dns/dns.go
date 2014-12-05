@@ -1,8 +1,8 @@
 package dns
 
 import (
-	"github.com/miekg/dns"
 	"fmt"
+	"github.com/miekg/dns"
 	"log"
 
 	"github.com/mediocregopher/gobdns/config"
@@ -63,4 +63,3 @@ func init() {
 		}()
 	}
 }
-

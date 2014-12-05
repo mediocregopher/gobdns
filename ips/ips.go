@@ -1,8 +1,8 @@
 package ips
 
 import (
-	"sync"
 	"strings"
+	"sync"
 )
 
 type Mapping map[string]string
