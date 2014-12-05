@@ -1,15 +1,13 @@
 package repl
 
 import (
-	"bufio"
 	"io"
 	"log"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/mediocregopher/gobdns/config"
-	"github.com/mediocregopher/gobdns/ips"
+	"github.com/mediocregopher/gobdns/snapshot"
 )
 
 func init() {
@@ -22,17 +20,17 @@ func init() {
 
 func spin() {
 	tick := time.Tick(5 * time.Second)
-	snapshot()
+	snapshotRequest()
 	for {
 		select {
 		case <-tick:
-			snapshot()
+			snapshotRequest()
 		}
 	}
 }
 
-func snapshot() {
-	url := "http://" + config.MasterAddr + "/api/domains/all"
+func snapshotRequest() {
+	url := "http://" + config.MasterAddr + "/api/snapshot"
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Printf("error connecting to master: %s", err)
@@ -40,28 +38,14 @@ func snapshot() {
 	}
 	defer resp.Body.Close()
 
-	// TODO probably make a snapshot package to do all this so we're not
-	// duplicating with persist
-	m := ips.Mapping{}
-	buf := bufio.NewReader(resp.Body)
-	for {
-		line, err := buf.ReadString('\n')
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			log.Printf("error reading from master: %s", err)
-			return
-		}
-
-		parts := strings.Split(line, " ")
-		if len(parts) != 2 {
-			log.Printf("corrupted snapshot at %q", line)
-			return
-		}
-
-		m[parts[0]] = strings.TrimSpace(parts[1])
+	b := make([]byte, resp.ContentLength)
+	if _, err := io.ReadFull(resp.Body, b); err != nil {
+		log.Printf("error reading from master: %s", err)
+		return
 	}
 
-	ips.SetAll(m)
-	return
+	if err := snapshot.LoadEncoded(b); err != nil {
+		log.Printf("error loading snapshot: %s", err)
+		return
+	}
 }

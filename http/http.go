@@ -11,10 +11,14 @@ import (
 
 	"github.com/mediocregopher/gobdns/config"
 	"github.com/mediocregopher/gobdns/ips"
+	"github.com/mediocregopher/gobdns/snapshot"
 )
 
 var usage = `
 	GET    /                     Gives you this page
+
+	GET    /api/snapshot         Returns an encoded snapshot of this instance's
+	                             data
 
 	GET    /api/domains/all      Gives you a space separated mapping of domains
 	                             to ips
@@ -38,6 +42,7 @@ func init() {
 		log.Printf("API Listening on %s", config.APIAddr)
 		http.HandleFunc("/api/domains/all", getAll)
 		http.HandleFunc("/api/domains/", putDelete)
+		http.HandleFunc("/api/snapshot", getSnapshot)
 		http.HandleFunc("/", root)
 		http.ListenAndServe(config.APIAddr, nil)
 	}()
@@ -81,8 +86,19 @@ func putDelete(w http.ResponseWriter, r *http.Request) {
 	case "DELETE":
 		ips.Unset(domain)
 	}
+}
 
-	r.Body.Close()
+func getSnapshot(w http.ResponseWriter, r *http.Request) {
+	b, err := snapshot.CreateEncoded()
+	if err != nil {
+		log.Printf("Creating snapshot: %s", err)
+		w.WriteHeader(500)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(b)
+	return
 }
 
 func root(w http.ResponseWriter, r *http.Request) {

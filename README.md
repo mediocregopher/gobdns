@@ -78,7 +78,3 @@ mappings.
 `master-addr` can be set to point to the REST interface of another running
 gobdns instance, and every 5 seconds will pull the full list of entries from
 that instance and overwrite the current list.
-
-## TODO
-
-* consolidate some duplicated code in persist and repl

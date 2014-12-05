@@ -1,16 +1,13 @@
 package persist
 
 import (
-	"bufio"
-	"fmt"
-	"io"
+	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/mediocregopher/gobdns/config"
-	"github.com/mediocregopher/gobdns/ips"
+	"github.com/mediocregopher/gobdns/snapshot"
 )
 
 func init() {
@@ -18,40 +15,49 @@ func init() {
 		return
 	}
 
-	if initialRead() {
-		go spin()
-	}
+	initialRead()
+	go spin()
 }
 
-func initialRead() bool {
-	f, err := os.Open(config.BackupFile)
+func initialRead() {
+	log.Printf("Reading snapshot from %s", config.BackupFile)
+	b, err := ioutil.ReadFile(config.BackupFile)
 	if os.IsNotExist(err) {
 		log.Printf("%s not found, not reading from it", config.BackupFile)
-		return true
+		return
 	} else if err != nil {
 		log.Fatalf("%s could not be read from: %s", config.BackupFile, err)
 	}
 
-	log.Printf("Reading mappings from %s", config.BackupFile)
-	buf := bufio.NewReader(f)
-	m := ips.Mapping{}
-	for {
-		line, err := buf.ReadString('\n')
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			log.Fatalf("%s could not be read from: %s", config.BackupFile, err)
-		}
+	if err := snapshot.LoadEncoded(b); err != nil {
+		log.Fatalf("Could not load snapshot from %s: %s", config.BackupFile, err)
+	}
+}
 
-		parts := strings.Split(line, " ")
-		if len(parts) != 2 {
-			log.Fatalf("%s is corrupted, found %q", config.BackupFile, line)
-		}
-		m[parts[0]] = strings.TrimSpace(parts[1])
+func writeSnapshot() {
+	tmpfn := config.BackupFile + ".tmp"
+	tmpf, err := os.Create(tmpfn)
+	if err != nil {
+		log.Printf("Couldn't open %s for writing: %s", tmpfn, err)
+		return
+	}
+	defer tmpf.Close()
+
+	b, err := snapshot.CreateEncoded()
+	if err != nil {
+		log.Printf("Couldn't create snapshot: %s", err)
+		return
 	}
 
-	ips.SetAll(m)
-	return true
+	if _, err := tmpf.Write(b); err != nil {
+		log.Printf("Couldn't write snapshot to %s: %s", tmpfn, err)
+		return
+	}
+
+	if err := os.Rename(tmpfn, config.BackupFile); err != nil {
+		log.Printf("Couldn't rename %s: %s", tmpfn, err)
+		return
+	}
 }
 
 func spin() {
@@ -59,21 +65,7 @@ func spin() {
 	for {
 		select {
 		case <-tick:
-			tmpfn := config.BackupFile + ".tmp"
-			tmpf, err := os.Create(tmpfn)
-			if err != nil {
-				log.Printf("Couldn't open %s for writing: %s", tmpfn, err)
-				break
-			}
-			for domain, ip := range ips.GetAll() {
-				fmt.Fprintf(tmpf, "%s %s\n", domain, ip)
-			}
-			tmpf.Close()
-
-			if err := os.Rename(tmpfn, config.BackupFile); err != nil {
-				log.Printf("Couldn't rename %s: %s", tmpfn, err)
-				break
-			}
+			writeSnapshot()
 		}
 	}
 }
