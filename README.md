@@ -79,5 +79,3 @@ that instance and overwrite the current list.
 ## TODO
 
 * consolidate some duplicated code in persist and repl
-* make an Overwrite method in ips, and use that in repl so that deleted entries
-  go away

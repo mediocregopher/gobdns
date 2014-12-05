@@ -5,7 +5,9 @@ import (
 	"strings"
 )
 
-var m = map[string]string{}
+type Mapping map[string]string
+
+var m = Mapping{}
 var mLock sync.RWMutex
 
 // Retrieves the best matching ip for the given domain. Or not. Will return the
@@ -35,8 +37,8 @@ func GetExact(domain string) (string, bool) {
 }
 
 // Get's a copy of the map which maps all known domains to all known ips
-func GetAll() map[string]string {
-	m2 := map[string]string{}
+func GetAll() Mapping {
+	m2 := Mapping{}
 	mLock.RLock()
 	defer mLock.RUnlock()
 	for domain, ip := range m {
@@ -56,6 +58,16 @@ func Set(domain, ip string) {
 	mLock.Lock()
 	m[domain] = ip
 	mLock.Unlock()
+}
+
+// Sets the current snapshot to a copy of the given one
+func SetAll(m2 Mapping) {
+	mLock.Lock()
+	defer mLock.Unlock()
+	m = Mapping{}
+	for domain, ip := range m2 {
+		m[domain] = ip
+	}
 }
 
 // If the given domain is set to an ip, unsets it

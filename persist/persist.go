@@ -34,7 +34,7 @@ func initialRead() bool {
 
 	log.Printf("Reading mappings from %s", config.BackupFile)
 	buf := bufio.NewReader(f)
-	m := map[string]string{}
+	m := ips.Mapping{}
 	for {
 		line, err := buf.ReadString('\n')
 		if err == io.EOF {
@@ -50,10 +50,7 @@ func initialRead() bool {
 		m[parts[0]] = strings.TrimSpace(parts[1])
 	}
 
-	for domain, ip := range m {
-		ips.Set(domain, ip)
-	}
-
+	ips.SetAll(m)
 	return true
 }
 
