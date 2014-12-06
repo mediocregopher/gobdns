@@ -73,11 +73,11 @@ func putDelete(w http.ResponseWriter, r *http.Request) {
 		}
 		ip := strings.TrimSpace(string(ipB))
 		if ip == "" {
-			portIdent := strings.LastIndex(r.RemoteAddr, ":")
-			ip = r.RemoteAddr[:portIdent]
-		} else if net.ParseIP(ip) == nil {
+			ip = getIP(r)
+		}
+		if net.ParseIP(ip) == nil {
 			w.WriteHeader(400)
-			fmt.Fprintf(w, "invalid ip given in request body")
+			fmt.Fprintf(w, "invalid ip: %s", ip)
 			return
 		}
 		ips.Set(domain, ip)
@@ -85,6 +85,14 @@ func putDelete(w http.ResponseWriter, r *http.Request) {
 	case "DELETE":
 		ips.Unset(domain)
 	}
+}
+
+func getIP(r *http.Request) string {
+	if ip := r.Header.Get("X-Forwarded-For"); ip != "" {
+		return ip
+	}
+	portIdent := strings.LastIndex(r.RemoteAddr, ":")
+	return r.RemoteAddr[:portIdent]
 }
 
 func getSnapshot(w http.ResponseWriter, r *http.Request) {
