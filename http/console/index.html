@@ -1,0 +1,61 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>GOBDNS</title>
+  <script type="text/javascript" src="qwest.min.js"></script>
+  <script type="text/javascript" src="http://elm-lang.org/elm-runtime.js"></script>
+  <script type="text/javascript" src="Gobdns.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+</body>
+
+<script type="text/javascript">
+
+var addRoute = function(rule){ return "/api/domains/" + rule[0];}
+
+var gobdns = Elm.fullscreen(Elm.Gobdns, {rulesList: [], pendingAdds: [],
+		                         pendingRemoves: [], completedAdds: [], completedRemoves: [],
+                             failedAdds: [], failedRemoves: []});
+
+qwest.get("/api/domains/all").then(function(r){
+  var rules = r.split("\n").filter(function(s){return s!==""}).map(function(s){return s.split(" ")});
+  console.log("rules",rules);
+  gobdns.ports.rulesList.send(rules);
+})
+
+gobdns.ports.addRule.subscribe(
+function(rules){
+  console.log("Rules:", rules);
+  rules.forEach(function(rule){
+    gobdns.ports.pendingAdds.send([rule]);
+    qwest.post(addRoute(rule), rule[1], {"dataType":"text"})
+    .then(function(response){
+      gobdns.ports.completedAdds.send([rule])
+    })
+    .catch(function(message){
+      gobdns.ports.failedAdds.send([rule])
+    });
+  })
+})
+
+gobdns.ports.deleteRule.subscribe(
+function(rules){
+  rules.forEach(function(rule){
+    gobdns.ports.pendingRemoves.send([rule]);
+    qwest.delete(addRoute(rule))
+    .then(function(response){
+      gobdns.ports.completedRemoves.send([rule])
+    })
+    .catch(function(message){
+      gobdns.ports.failedRemoves.send([rule])
+    });
+  })
+})
+
+</script>
+
+</html>

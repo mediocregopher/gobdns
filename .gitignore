@@ -2,3 +2,5 @@
 gobdns
 *.test
 *.db*
+
+bindata.go

@@ -30,15 +30,26 @@ employees, each one maybe having multiple virtual hosts.
 
 ## Building
 
-First, clone the repo. Then, if you don't have the dependencies yet, simply:
+First, clone the repo.
 
+To build the web console stuff you'll need elm 0.13 installed and on your path.
+Run the following to install the elm dependencies:
+
+    cd http/console
+    elm-get install
+
+Then to get the go dependencies:
+
+    # Installs the go-bindata binary
+    go get github.com/jteeuwen/go-bindata/...
+
+    # Retrieves dependencies for this project
     go get ./...
 
 After that:
 
-    go build
-
-To build the gobdns binary
+    # Build the gobdns binary
+    make clean all
 
 ## Usage
 

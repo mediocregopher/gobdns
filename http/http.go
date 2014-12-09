@@ -3,6 +3,7 @@ package http
 import (
 	"fmt"
 	"io/ioutil"
+	"github.com/elazarl/go-bindata-assetfs"
 	"log"
 	"net"
 	"net/http"
@@ -44,7 +45,13 @@ func init() {
 		http.HandleFunc("/api/domains/all", getAll)
 		http.HandleFunc("/api/domains/", putDelete)
 		http.HandleFunc("/api/snapshot", getSnapshot)
-		http.HandleFunc("/", root)
+
+		assetFS := assetfs.AssetFS{
+			Asset: Asset,
+			AssetDir: AssetDir,
+		}
+
+		http.Handle("/", http.FileServer(&assetFS))
 		http.ListenAndServe(config.APIAddr, nil)
 	}()
 }

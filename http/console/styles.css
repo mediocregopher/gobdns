@@ -1,0 +1,62 @@
+.container {
+  width: 700px;
+  margin-top: 40px;
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid;
+  border-radius: 10px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  padding-left: 10px;
+}
+
+.gobdns-name{
+  text-align: center;
+}
+
+.rule.pending {
+  background: grey;
+  opacity: 0.6;
+}
+
+div {
+  font-family: 'Inconsolata', monospace;
+}
+
+.rules-filter {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.header {
+  text-align: center;
+}
+
+.header .target-header{
+  margin-right: 130px;
+}
+
+.rules {
+  text-align: center;
+}
+
+.add-rules {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.rule > div {
+  display: inline-block;
+}
+
+.rule .hostname{
+  min-width: 190px;
+}
+
+.rule .target{
+  margin-right: 30px;
+}
+
+.errors {
+  background-color: red;
+}
