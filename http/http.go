@@ -15,26 +15,6 @@ import (
 	"github.com/mediocregopher/gobdns/snapshot"
 )
 
-var usage = `
-	GET    /                     Gives you this page
-
-	GET    /api/snapshot         Returns an encoded snapshot of this instance's
-	                             data
-
-	GET    /api/domains/all      Gives you a space separated mapping of domains
-	                             to ips
-
-	POST   /api/domains/<domain> Maps the given domain to the given ip, which
-	                             can be the body data for the request, otherwise
-	                             the ip the request is coming from will be used.
-
-	PUT    /api/domains/<domain> Same as POST'ing
-
-	DELETE /api/domains/<domain> Removes the domain->ip mapping for the given
-	                             domain
-
-`
-
 func init() {
 	if config.APIAddr == "" {
 		return
@@ -113,8 +93,4 @@ func getSnapshot(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(b)
 	return
-}
-
-func root(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, usage)
 }
