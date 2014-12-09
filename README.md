@@ -60,10 +60,11 @@ to a file, modified and used with the `--config` flag.
 
 ### Adding entries
 
-Once running, you can use the REST api to add and remove entries (TODO: hoping
-for an actual web console soon).
+Once running, you can use the REST api or the web console to add and remove entries.
 
-Assuming the REST interface is on `localhost:8080`:
+You can access the web console by going to the address specified by `--api-addr` (`localhost:8080` by default).
+
+Here are example curl calls for all the api methods:
 
 See all existing entries:
 
