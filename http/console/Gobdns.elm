@@ -48,6 +48,7 @@ data Action
     | RemovePending [Rule]
     | RemoveComplete [Rule]
     | RemoveFail [Rule]
+    | ClearErrors
 
 emptyState : State
 emptyState = { pendingDelete = [], toDelete = []
@@ -99,7 +100,8 @@ errorLayout : [String] -> Html.Html
 errorLayout errors = Tag.div [Attr.class "errors"]
   (if isEmpty errors
    then []
-   else [Html.text "Errors: ", Html.text (join ", " errors)])
+   else [ Html.text "Errors: ", Html.text (join ", " errors)
+        , Tag.button [Attr.class "clear-error", Event.onclick actions.handle (\_ -> ClearErrors)] [Html.text "Clear Errors"]])
 
 ruleLayout : [Rule] -> Rule -> Html.Html
 ruleLayout pendingRules (hostname,target) =
@@ -169,6 +171,7 @@ step action state =
     RemoveComplete rules -> {state | currentRules <- diffRules state.currentRules rules
                                    , toDelete <- diffRules state.toDelete rules
                                    , pendingDelete <- diffRules state.pendingDelete rules}
+    ClearErrors -> {state | errors <- []}
 
 actionsWithPorts : Signal [Rule] -> Signal Action
 actionsWithPorts rulesList = Signal.merges [ actions.signal
