@@ -1,5 +1,5 @@
 all:
-	elm -m -o Gobdns.elm
+	elm --bundle-runtime -m -o Gobdns.elm
 	cp index.html build/
 	cp qwest.min.js build/
 	cp styles.css build/
