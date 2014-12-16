@@ -1,7 +1,7 @@
 package repl
 
 import (
-	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
@@ -38,8 +38,8 @@ func snapshotRequest() {
 	}
 	defer resp.Body.Close()
 
-	b := make([]byte, resp.ContentLength)
-	if _, err := io.ReadFull(resp.Body, b); err != nil {
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
 		log.Printf("error reading from master: %s", err)
 		return
 	}
