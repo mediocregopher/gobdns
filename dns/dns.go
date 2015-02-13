@@ -10,6 +10,18 @@ import (
 	"github.com/miekg/dns"
 )
 
+func doProxy(m *dns.Msg) *dns.Msg {
+	if config.ForwardAddr == "" {
+		return nil
+	}
+	aM, err := dns.Exchange(m, config.ForwardAddr)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	return aM
+}
+
 func handleRequest(w dns.ResponseWriter, r *dns.Msg) {
 
 	domain := r.Question[0].Name
@@ -21,12 +33,12 @@ func handleRequest(w dns.ResponseWriter, r *dns.Msg) {
 		if net.ParseIP(ip) == nil {
 			m := new(dns.Msg)
 			m.SetQuestion(dns.Fqdn(ip), dns.TypeA)
-			proxiedR, err := dns.Exchange(m, config.ForwardAddr)
-			if err != nil {
-				log.Println(err)
+			proxiedM := doProxy(m)
+			if proxiedM == nil {
 				dns.HandleFailed(w, r)
 				return
 			}
+
 			cname, err := dns.NewRR(fmt.Sprintf("%s IN CNAME %s", domain, ip))
 			if err != nil {
 				log.Println(err)
@@ -34,11 +46,9 @@ func handleRequest(w dns.ResponseWriter, r *dns.Msg) {
 				return
 			}
 
-			m = new(dns.Msg)
-			m.SetReply(r)
-			m.Answer = proxiedR.Answer
-			m.Answer = append(m.Answer, cname)
-			w.WriteMsg(m)
+			proxiedM.SetReply(r)
+			proxiedM.Answer = append(proxiedM.Answer, cname)
+			w.WriteMsg(proxiedM)
 			return
 		}
 
@@ -56,14 +66,9 @@ func handleRequest(w dns.ResponseWriter, r *dns.Msg) {
 		return
 	}
 
-	if config.ForwardAddr == "" {
+	proxiedR := doProxy(r)
+	if proxiedR == nil {
 		dns.HandleFailed(w, r)
-		return
-	}
-
-	proxiedR, err := dns.Exchange(r, config.ForwardAddr)
-	if err != nil {
-		log.Println(err)
 		return
 	}
 	w.WriteMsg(proxiedR)
