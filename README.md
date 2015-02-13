@@ -24,6 +24,7 @@ employees, each one maybe having multiple virtual hosts.
 * Disk persistence
 * Basic master/slave replication
 * Can forward requests for unknown domains to a different nameserver
+* Can forward request for domain to a different nameserver as a different domain
 
 ## Building
 
@@ -92,3 +93,12 @@ mappings.
 `master-addr` can be set to point to the REST interface of another running
 gobdns instance, and every 5 seconds will pull the full list of entries from
 that instance and overwrite the current list.
+
+## Forwarding
+
+When the `--forward-addr` option is used it can be set in order to proxy
+requests for unmatched domains to another dns resolver.
+
+If the target for a hostname isn't an ip but instead another hostname, a request
+for that target hostname will be sent to the `--forward-addr` server and that
+response will be sent back to the client.

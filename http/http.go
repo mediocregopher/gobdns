@@ -3,13 +3,12 @@ package http
 import (
 	"fmt"
 	"io/ioutil"
-	"github.com/elazarl/go-bindata-assetfs"
 	"log"
-	"net"
 	"net/http"
 	"path"
 	"strings"
 
+	"github.com/elazarl/go-bindata-assetfs"
 	"github.com/mediocregopher/gobdns/config"
 	"github.com/mediocregopher/gobdns/ips"
 	"github.com/mediocregopher/gobdns/snapshot"
@@ -27,7 +26,7 @@ func init() {
 		http.HandleFunc("/api/snapshot", getSnapshot)
 
 		assetFS := assetfs.AssetFS{
-			Asset: Asset,
+			Asset:    Asset,
 			AssetDir: AssetDir,
 		}
 
@@ -61,11 +60,6 @@ func putDelete(w http.ResponseWriter, r *http.Request) {
 		ip := strings.TrimSpace(string(ipB))
 		if ip == "" {
 			ip = getIP(r)
-		}
-		if net.ParseIP(ip) == nil {
-			w.WriteHeader(400)
-			fmt.Fprintf(w, "invalid ip: %s", ip)
-			return
 		}
 		ips.Set(domain, ip)
 
