@@ -28,7 +28,7 @@ func handleRequest(w dns.ResponseWriter, r *dns.Msg) {
 
 	if ip, ok := ips.Get(domain); ok {
 
-		// If the stored "ip" isn't actually a domain but an ip instead, we
+		// If the stored "ip" isn't actually an ip but a domain instead, we
 		// proxy the request for that domain
 		if net.ParseIP(ip) == nil {
 			m := new(dns.Msg)
