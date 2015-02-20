@@ -4,17 +4,38 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strings"
 
 	"github.com/mediocregopher/gobdns/config"
 	"github.com/mediocregopher/gobdns/ips"
 	"github.com/miekg/dns"
 )
 
+func suffixMatch(m *dns.Msg) string {
+	addr := ""
+	for _, q := range m.Question {
+		for _, f := range config.ForwardSuffixes {
+			if strings.HasSuffix(q.Name, f.Suffix) {
+				if addr != "" && addr != f.ForwardAddr {
+					return ""
+				}
+				addr = f.ForwardAddr
+			}
+		}
+	}
+	return addr
+}
+
 func doProxy(m *dns.Msg) *dns.Msg {
-	if config.ForwardAddr == "" {
+	var addr string
+	if suffixAddr := suffixMatch(m); suffixAddr != "" {
+		addr = suffixAddr
+	} else if config.ForwardAddr != "" {
+		addr = config.ForwardAddr
+	} else {
 		return nil
 	}
-	aM, err := dns.Exchange(m, config.ForwardAddr)
+	aM, err := dns.Exchange(m, addr)
 	if err != nil {
 		log.Println(err)
 		return nil

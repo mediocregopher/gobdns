@@ -24,6 +24,7 @@ employees, each one maybe having multiple virtual hosts.
 * Disk persistence
 * Basic master/slave replication
 * Can forward requests for unknown domains to a different nameserver
+* Can forward requests with particular suffixes to particular nameservers
 * Can forward request for domain to a different nameserver as a different domain
 
 ## Building
@@ -102,3 +103,9 @@ requests for unmatched domains to another dns resolver.
 If the target for a hostname isn't an ip but instead another hostname, a request
 for that target hostname will be sent to the `--forward-addr` server and that
 response will be sent back to the client.
+
+When the `--forward-suffix-addr` option is used all requests which are not
+matched by any targets set directly on the gobdns instance and which match the
+suffix will be forwarded to that dns server. It can be specified more than once
+to attempt to match multiple suffixes. The request will fallback to
+`--forward-addr` (if set) if no suffixes match.
