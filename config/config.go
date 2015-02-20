@@ -1,9 +1,9 @@
 package config
 
 import (
-	"github.com/mediocregopher/flagconfig"
-	"log"
 	"strings"
+
+	"github.com/mediocregopher/lever"
 )
 
 var (
@@ -18,25 +18,50 @@ var (
 const forwardSuffix = ":53"
 
 func init() {
-	fc := flagconfig.New("gobdns")
+	l := lever.New("gobdns", nil)
 
-	fc.StrParam("tcp-addr", "TCP address to listen on. Set to empty to not listen on tcp", ":53")
-	fc.StrParam("udp-addr", "UDP address to listen on. Set to empty to not listen on udp", ":53")
-	fc.StrParam("forward-addr", "Address to forward requests to when no matches are found", "")
-	fc.StrParam("api-addr", "Address for the REST API to listen on. Set to empty to disable it", ":8080")
-	fc.StrParam("backup-file", "File to read data from during startup and to write data to during runtime. Leave blank to disable persistence", "./gobdns.db")
-	fc.StrParam("master-addr", "ip:port of master instance to periodically pull snapshots from. Leave blank to disable", "")
+	l.Add(lever.Param{
+		Name:        "--tcp-addr",
+		Description: "TCP address to listen on. Set to empty to not listen on tcp",
+		Default:     ":53",
+	})
 
-	if err := fc.Parse(); err != nil {
-		log.Fatal(err)
-	}
+	l.Add(lever.Param{
+		Name:        "--udp-addr",
+		Description: "UDP address to listen on. Set to empty to not listen on udp",
+		Default:     ":53",
+	})
 
-	TCPAddr = fc.GetStr("tcp-addr")
-	UDPAddr = fc.GetStr("udp-addr")
-	ForwardAddr = fc.GetStr("forward-addr")
-	APIAddr = fc.GetStr("api-addr")
-	BackupFile = fc.GetStr("backup-file")
-	MasterAddr = fc.GetStr("master-addr")
+	l.Add(lever.Param{
+		Name:        "--forward-addr",
+		Description: "Address to forward requests to when no matches are found",
+	})
+
+	l.Add(lever.Param{
+		Name:        "--api-addr",
+		Description: "Address for the REST API to listen on. Set to empty to disable it",
+		Default:     ":8080",
+	})
+
+	l.Add(lever.Param{
+		Name:        "--backup-file",
+		Description: "File to read data from during startup and to write data to during runtime. Leave blank to disable persistence",
+		Default:     "./gobdns.db",
+	})
+
+	l.Add(lever.Param{
+		Name:        "--master-addr",
+		Description: "ip:port of master instance to periodically pull snapshots from. Leave blank to disable",
+	})
+
+	l.Parse()
+
+	TCPAddr, _ = l.ParamStr("--tcp-addr")
+	UDPAddr, _ = l.ParamStr("--udp-addr")
+	ForwardAddr, _ = l.ParamStr("--forward-addr")
+	APIAddr, _ = l.ParamStr("--api-addr")
+	BackupFile, _ = l.ParamStr("--backup-file")
+	MasterAddr, _ = l.ParamStr("--master-addr")
 
 	if ForwardAddr != "" && !strings.HasSuffix(ForwardAddr, forwardSuffix) {
 		ForwardAddr += forwardSuffix
